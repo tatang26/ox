@@ -28,6 +28,21 @@ func TestBuildCmd(t *testing.T) {
 				}
 			},
 		},
+		{
+			commandNil:  false,
+			failMessage: "command should not be nil",
+			beforeFn: func() {
+				err := os.WriteFile("yarn.lock", []byte{}, 0600)
+				if err != nil {
+					t.Error(err)
+				}
+
+				err = os.WriteFile(".yarnrc.yml", []byte{}, 0600)
+				if err != nil {
+					t.Error(err)
+				}
+			},
+		},
 
 		{
 			commandNil:  true,

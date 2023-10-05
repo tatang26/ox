@@ -25,9 +25,38 @@ func (p *Plugin) buildCmd(ctx context.Context) *exec.Cmd {
 		return nil
 	}
 
-	fmt.Println(">> Running yarn install <<<")
+	if _, err := os.Stat(".yarnrc.yml"); err == nil {
+		return p.execAsYarnPkg(ctx)
+	}
+
+	return p.execAsYarnClassic(ctx)
+}
+
+func (p *Plugin) execAsYarnClassic(ctx context.Context) *exec.Cmd {
+	_, err := os.Stat("yarn.lock")
+	if os.IsNotExist(err) {
+		return nil
+	}
+
+	fmt.Println(">> Running yarn classic install <<<")
 
 	c := exec.CommandContext(ctx, "yarn", "install", "--no-progress")
+	c.Stdin = os.Stdin
+	c.Stderr = os.Stderr
+	c.Stdout = os.Stdout
+
+	return c
+}
+
+func (p *Plugin) execAsYarnPkg(ctx context.Context) *exec.Cmd {
+	_, err := os.Stat("yarn.lock")
+	if os.IsNotExist(err) {
+		return nil
+	}
+
+	fmt.Println(">> Running yarnpkg install <<<")
+
+	c := exec.CommandContext(ctx, "yarn", "install")
 	c.Stdin = os.Stdin
 	c.Stderr = os.Stderr
 	c.Stdout = os.Stdout
